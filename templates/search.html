@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Результаты поиска{% endblock %}
+
+{% block content %}
+    <h1 class="section-title">Результаты поиска</h1>
+    
+    <form method="GET" action="{{ url_for('search') }}" class="search-form">
+        <input type="text" name="q" value="{{ query }}" class="search-input" placeholder="Поиск по форуму..." required>
+        <button type="submit" class="search-btn">Найти</button>
+    </form>
+    
+    <p class="search-results-count">Найдено результатов: {{ posts|length }}</p>
+    
+    {% if posts %}
+        <div class="posts-grid">
+            {% for post in posts %}
+                <div class="post-card">
+                    {% if post.image %}
+                        <img src="{{ url_for('static', filename='uploads/' + post.image) }}" alt="{{ post.title }}" class="post-image">
+                    {% endif %}
+                    <div class="post-content">
+                        <h3 class="post-title"><a href="{{ url_for('view_post', post_id=post.id) }}">{{ post.title }}</a></h3>
+                        <div class="post-meta">
+                            <span>Категория: {{ post.category.name }}</span>
+                            <span>Автор: {{ post.author.username }}</span>
+                            <span>{{ post.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                        </div>
+                        <p class="post-excerpt">{{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}</p>
+                        <div class="post-actions">
+                            <a href="{{ url_for('view_post', post_id=post.id) }}" class="btn">Читать далее</a>
+                            <span>{{ post.comments|length }} комментариев</span>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>По вашему запросу ничего не найдено.</p>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block content %}
+    <h1 class="section-title">{{ category.name }}</h1>
+    <p>{{ category.description }}</p>
+    
+    {% if posts %}
+        <div class="posts-grid" style="margin-top: 2rem;">
+            {% for post in posts %}
+                <div class="post-card">
+                    {% if post.image %}
+                        <img src="{{ url_for('static', filename='uploads/' + post.image) }}" alt="{{ post.title }}" class="post-image">
+                    {% endif %}
+                    <div class="post-content">
+                        <h3 class="post-title"><a href="{{ url_for('view_post', post_id=post.id) }}">{{ post.title }}</a></h3>
+                        <div class="post-meta">
+                            <span>Автор: {{ post.author.username }}</span>
+                            <span>{{ post.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                        </div>
+                        <p class="post-excerpt">{{ post.content[:200] }}{% if post.content|length > 200 %}...{% endif %}</p>
+                        <div class="post-actions">
+                            <a href="{{ url_for('view_post', post_id=post.id) }}" class="btn">Читать далее</a>
+                            <span>{{ post.comments|length }} комментариев</span>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="margin-top: 1rem;">В этой категории пока нет постов.</p>
+    {% endif %}
+{% endblock %}

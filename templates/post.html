@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+    <article class="post-full">
+        {% if post.image %}
+            <img src="{{ url_for('static', filename='uploads/' + post.image) }}" alt="{{ post.title }}" class="post-full-image">
+        {% endif %}
+        
+        <h1>{{ post.title }}</h1>
+        
+        <div class="post-meta">
+            <span>Категория: <a href="{{ url_for('view_category', category_id=post.category_id) }}">{{ post.category.name }}</a></span>
+            <span>Автор: {{ post.author.username }}</span>
+            <span>{{ post.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+        </div>
+        
+        <div class="post-full-content">
+            {{ post.content|safe }}
+        </div>
+        
+        <div class="post-actions">
+            {% if 'username' in session and (session['username'] == post.author.username or session.get('is_admin')) %}
+                <a href="{{ url_for('edit_post', post_id=post.id) }}" class="btn">Редактировать</a>
+                <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Вы уверены, что хотите удалить этот пост?')">Удалить</button>
+                </form>
+            {% endif %}
+            
+            {% if 'username' in session %}
+                <form method="POST" action="{{ url_for('rate_post', post_id=post.id, value=1) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-success">Лайк</button>
+                </form>
+                <form method="POST" action="{{ url_for('rate_post', post_id=post.id, value=-1) }}" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Дизлайк</button>
+                </form>
+            {% endif %}
+        </div>
+    </article>
+    
+    <section class="comments-section">
+        <h2 class="section-title">Комментарии ({{ post.comments|length }})</h2>
+        
+        {% if post.comments %}
+            {% for comment in post.comments %}
+                <div class="comment">
+                    <div class="comment-meta">
+                        <span>{{ comment.author.username }}</span>
+                        <span>{{ comment.created_at.strftime('%d.%m.%Y %H:%M') }}</span>
+                    </div>
+                    <div class="comment-content">
+                        {{ comment.content }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Пока нет комментариев. Будьте первым!</p>
+        {% endif %}
+        
+        {% if 'username' in session and not post.is_closed %}
+            <form method="POST" class="comment-form" style="margin-top: 2rem;">
+                <div class="form-group">
+                    <label for="content" class="form-label">Добавить комментарий:</label>
+                    <textarea id="content" name="content" class="form-control" required></textarea>
+                </div>
+                <button type="submit" class="btn">Отправить</button>
+            </form>
+        {% elif post.is_closed %}
+            <p style="margin-top: 1rem; color: var(--danger-color);">Обсуждение закрыто для комментариев.</p>
+        {% else %}
+            <p style="margin-top: 1rem;"><a href="{{ url_for('login') }}">Войдите</a>, чтобы оставить комментарий.</p>
+        {% endif %}
+    </section>
+{% endblock %}

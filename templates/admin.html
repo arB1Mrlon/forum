@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Админ-панель{% endblock %}
+
+{% block content %}
+    <div class="admin-panel">
+        <h1 class="section-title">Админ-панель</h1>
+        
+        <div class="admin-section">
+            <h2 class="admin-section-title">Управление постами</h2>
+            
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Заголовок</th>
+                        <th>Автор</th>
+                        <th>Дата</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for post in posts %}
+                        <tr>
+                            <td>{{ post.id }}</td>
+                            <td><a href="{{ url_for('view_post', post_id=post.id) }}">{{ post.title }}</a></td>
+                            <td>{{ post.author.username }}</td>
+                            <td>{{ post.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
+                            <td>
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="post_id" value="{{ post.id }}">
+                                    {% if post.is_pinned %}
+                                        <input type="hidden" name="action" value="unpin_post">
+                                        <button type="submit" class="btn btn-outline">Открепить</button>
+                                    {% else %}
+                                        <input type="hidden" name="action" value="pin_post">
+                                        <button type="submit" class="btn">Закрепить</button>
+                                    {% endif %}
+                                </form>
+                                
+                                <form method="POST" style="display: inline;">
+                                    <input type="hidden" name="post_id" value="{{ post.id }}">
+                                    {% if post.is_closed %}
+                                        <input type="hidden" name="action" value="open_post">
+                                        <button type="submit" class="btn btn-outline">Открыть</button>
+                                    {% else %}
+                                        <input type="hidden" name="action" value="close_post">
+                                        <button type="submit" class="btn">Закрыть</button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="admin-section">
+            <h2 class="admin-section-title">Управление категориями</h2>
+            
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>Описание</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in categories %}
+                        <tr>
+                            <td>{{ category.id }}</td>
+                            <td>{{ category.name }}</td>
+                            <td>{{ category.description }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            <form method="POST" style="margin-top: 1.5rem;">
+                <input type="hidden" name="action" value="add_category">
+                
+                <div class="admin-form-group">
+                    <label for="name" class="form-label">Название категории:</label>
+                    <input type="text" id="name" name="name" class="form-control" required>
+                </div>
+                
+                <div class="admin-form-group">
+                    <label for="description" class="form-label">Описание:</label>
+                    <input type="text" id="description" name="description" class="form-control" required>
+                </div>
+                
+                <button type="submit" class="btn">Добавить категорию</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

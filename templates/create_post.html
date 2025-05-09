@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Создать новый пост{% endblock %}
+
+{% block content %}
+    <div class="form-container">
+        <h2 class="section-title">{% if edit_mode %}Редактировать пост{% else %}Создать новый пост{% endif %}</h2>
+        
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title" class="form-label">Заголовок:</label>
+                <input type="text" id="title" name="title" class="form-control" value="{% if post %}{{ post.title }}{% endif %}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="category_id" class="form-label">Категория:</label>
+                <select id="category_id" name="category_id" class="form-control" required>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}" {% if post and post.category_id == category.id %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="content" class="form-label">Содержание:</label>
+                <textarea id="content" name="content" class="form-control" required>{% if post %}{{ post.content }}{% endif %}</textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="image" class="form-label">Изображение (необязательно):</label>
+                <input type="file" id="image" name="image" class="form-control">
+                {% if post and post.image %}
+                    <p>Текущее изображение: {{ post.image }}</p>
+                {% endif %}
+            </div>
+            
+            <button type="submit" class="btn">{% if edit_mode %}Обновить пост{% else %}Опубликовать{% endif %}</button>
+            
+            {% if edit_mode %}
+                <a href="{{ url_for('view_post', post_id=post.id) }}" class="btn btn-outline" style="margin-left: 0.5rem;">Отмена</a>
+            {% endif %}
+        </form>
+    </div>
+{% endblock %}
